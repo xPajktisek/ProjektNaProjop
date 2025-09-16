@@ -4,7 +4,7 @@ Witaj w Retro Arcade – miejscu, gdzie klasyczne gry powracają w neonowym, ret
 
 Tutaj znajdziesz wybór kultowych minigier, które możesz odkrywać i grać wkrótce. Każda z nich jest inspirowana klasykami z lat 70. i 80., a interakcja jest prosta i przyjemna – wszystko przy użyciu klawiatury! ⬆️⬇️ ENTER do wyboru, ESC aby wyjść.
 
-🔹 Dostępne gry:
+🔹 Dostępne gry: WKROTCE!
 Snake 🐍
 Klasyczny wąż z 1976 roku. Sterujesz wężem, który zjada jedzenie, rośnie i unika zderzeń z własnym ogonem.
 Wkrótce dostępna do gry!
