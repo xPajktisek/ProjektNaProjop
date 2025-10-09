@@ -35,4 +35,4 @@ Wyjście z menu: ESC
 Dodanie pełnej grywalności dla wszystkich tytułów
 Efekty dźwiękowe i muzyka retro
 Więcej animacji i efektów wizualnych
-Ranking graczy i możliwość zapisywania wyników 🏆
+możliwość zapisywania wyników 🏆
