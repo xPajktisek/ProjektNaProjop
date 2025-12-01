@@ -1,38 +1,60 @@
-🎮 Retro Arcade 🕹️
+# 🎮 **Retro Arcade** 🕹️
 
-Witaj w Retro Arcade – miejscu, gdzie klasyczne gry powracają w neonowym, retro stylu! 🌟
+Witaj w **Retro Arcade** – neonowym portalu do złotej ery gier wideo! ✨
+To tu kultowe klasyki z lat 70., 80. i początku 90. powracają w odświeżonej, pikselowej odsłonie.
+Całość obsługujesz **prostymi klawiszami**, a klimat retro wylewa się z każdego kąta ekranu.
 
-Tutaj znajdziesz wybór kultowych minigier, które możesz odkrywać i grać wkrótce. Każda z nich jest inspirowana klasykami z lat 70. i 80., a interakcja jest prosta i przyjemna – wszystko przy użyciu klawiatury! ⬆️⬇️ ENTER do wyboru, ESC aby wyjść.
+---
 
-🔹 Dostępne gry: WKROTCE!
-Snake 🐍
-Klasyczny wąż z 1976 roku. Sterujesz wężem, który zjada jedzenie, rośnie i unika zderzeń z własnym ogonem.
-Wkrótce dostępna do gry!
+## ⭐ **Co znajdziesz w Retro Arcade?**
 
-Tetris 🧩
-Układaj spadające klocki, aby tworzyć pełne linie i zdobywać punkty. Pierwsza wersja z 1984 roku.
-Coming soon!
+Zestaw legendarnych minigier – każda inspirowana oryginałem, lecz przygotowana tak, by grało się przyjemnie i współcześnie.
 
-Pong 🏓
-Pierwsza gra wideo z 1972 roku! Prosta zabawa – odbijaj piłeczkę paletką i zdobywaj punkty przeciwko przeciwnikowi.
-Wkrótce dostępne!
+### 🐍 **Snake** *(1976)*
 
-Space Invaders 👾
-Broń Ziemię przed inwazją kosmitów! Strzelaj do nadlatujących statków i zdobywaj punkty. Klasyk z 1978 roku.
-W przygotowaniu!
+Kultowy wąż powraca! Zbieraj jedzenie, rośnij i unikaj uderzenia w ogon.
+**Status:** wkrótce dostępny.
 
-Pac-Man 👻
-Jedz duchy i zbieraj kulki w labiryncie. Kultowa gra z 1980 roku, która wciąga na długie godziny.
-Niedługo w wersji grywalnej!
+### 🧩 **Tetris** *(1984)*
 
-🎨 Interakcja / Sterowanie
-Przewijanie menu: ⬆️⬇️
-Wybór gry: ENTER
-Wyjście z menu: ESC
+Układaj spadające klocki, czyść linie i zdobywaj punkty.
+**Status:** coming soon.
 
-⚡ Planowane aktualizacje
+### 🏓 **Pong** *(1972)*
 
-Dodanie pełnej grywalności dla wszystkich tytułów
-Efekty dźwiękowe i muzyka retro
-Więcej animacji i efektów wizualnych
-możliwość zapisywania wyników 🏆
+Pierwsza gra wideo w historii! Odbijaj piłeczkę i pokonaj przeciwnika.
+**Status:** w przygotowaniu.
+
+### 👾 **Space Invaders** *(1978)*
+
+Zestrzel nadciągające hordy kosmitów i ocal Ziemię.
+**Status:** wkrótce dostępne.
+
+### 👻 **Pac-Man** *(1980)*
+
+Unikaj duchów, zbieraj kulki i biegnij przez labirynt w jednym z największych hitów wszech czasów.
+**Status:** już niedługo!
+
+---
+
+## 🎨 **Sterowanie**
+
+| Akcja             | Klawisz   |
+| ----------------- | --------- |
+| Nawigacja po menu | ⬆️⬇️      |
+| Wybór gry         | **ENTER** |
+| Wyjście           | **ESC**   |
+
+Prosto, szybko, klasycznie – tak jak w starych automatach arcade. 🕹️
+
+---
+
+## ⚡ **Planowane aktualizacje**
+
+* Pełna grywalność wszystkich tytułów
+* Efekty dźwiękowe i muzyka w klimacie retro
+* Animacje i efekty wizualne w stylu neon-pixel
+* System zapisu wyników i tablice rekordów 🏆
+* Możliwe rozszerzenie o kolejne klasyki
+
+---
