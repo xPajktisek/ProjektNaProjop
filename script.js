@@ -1033,49 +1033,67 @@ function invadersGameLoop() {
 function endGame(gameName) {
     gameRunning = false;
 
-    let finalScore = gameName === 'snake' ? score : (gameName === 'tetris' ? tetrisScore : (gameName === 'pong' ? pongScore[0] : invadersScore));
-    const storageKey = gameName === 'snake' ? 'arcadeSnakeHighScore' : (gameName === 'tetris' ? 'arcadeTetrisHighScore' : (gameName === 'pong' ? 'arcadePongHighScore' : 'arcadeInvadersHighScore'));
+    let finalScore = gameName === 'snake' ? score : 
+                     (gameName === 'tetris' ? tetrisScore : 
+                     (gameName === 'pong' ? pongScore[0] : 
+                     (gameName === 'invaders' ? invadersScore : pacmanScore)));
+    
+    const storageKey = gameName === 'snake' ? 'arcadeSnakeHighScore' : 
+                       (gameName === 'tetris' ? 'arcadeTetrisHighScore' : 
+                       (gameName === 'pong' ? 'arcadePongHighScore' : 
+                       (gameName === 'invaders' ? 'arcadeInvadersHighScore' : 'arcadePacmanHighScore')));
 
     const currentHighScore = parseInt(localStorage.getItem(storageKey) || 0);
+    const isNewRecord = finalScore > currentHighScore;
 
-    if (finalScore > currentHighScore) {
+    if (isNewRecord) {
         localStorage.setItem(storageKey, finalScore);
         document.getElementById('highScore').textContent = String(finalScore).padStart(5, '0');
         document.getElementById('globalHighScore').textContent = String(finalScore).padStart(6, '0');
 
-        const bonus = 50;
+        const bonus = 100;
         coins += bonus;
         sessionCoins += bonus;
         updateCoinDisplay();
         document.getElementById('coinsEarned').textContent = sessionCoins;
     }
 
-    ctx.fillStyle = 'rgba(5, 5, 16, 0.9)';
+    ctx.fillStyle = 'rgba(5, 5, 16, 0.95)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--secondary-color');
-    ctx.font = 'bold 24px "Press Start 2P"';
+    // Efekt mrugania
+    ctx.fillStyle = isNewRecord ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 0, 136, 0.2)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = isNewRecord ? getComputedStyle(document.body).getPropertyValue('--accent-color') : getComputedStyle(document.body).getPropertyValue('--secondary-color');
+    ctx.font = 'bold 32px "Press Start 2P"';
     ctx.textAlign = 'center';
-    ctx.fillText('GAME', canvas.width/2, canvas.height/2 - 20);
-    ctx.fillText('OVER', canvas.width/2, canvas.height/2 + 20);
+    ctx.fillText('GAME', canvas.width/2, canvas.height/2 - 40);
+    ctx.fillText('OVER', canvas.width/2, canvas.height/2 - 10);
+
+    if (isNewRecord) {
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--accent-color');
+        ctx.font = '16px "Press Start 2P"';
+        ctx.fillText('★ NEW RECORD! ★', canvas.width/2, canvas.height/2 + 30);
+    }
 
     ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary-color');
     ctx.font = '14px "Press Start 2P"';
-    ctx.fillText(`SCORE: ${finalScore}`, canvas.width/2, canvas.height/2 + 60);
-    ctx.fillText(`+${sessionCoins} COINS`, canvas.width/2, canvas.height/2 + 90);
+    ctx.fillText(`SCORE: ${finalScore}`, canvas.width/2, canvas.height/2 + 70);
+    ctx.fillText(`+${sessionCoins} COINS`, canvas.width/2, canvas.height/2 + 100);
 
     setTimeout(() => {
-        if (confirm(`GAME OVER!\n\nSCORE: ${finalScore}\nCOINS EARNED: ${sessionCoins}\n\nPLAY AGAIN?`)) {
+        if (confirm(`GAME OVER!\n\nSCORE: ${finalScore}\nCOINS: +${sessionCoins}\n\n${isNewRecord ? '🏆 NEW RECORD! 🏆\n' : ''}PLAY AGAIN?`)) {
             if (gameName === 'snake') startSnakeGame();
             else if (gameName === 'tetris') startTetrisGame();
             else if (gameName === 'pong') startPongGame();
             else if (gameName === 'invaders') startInvadersGame();
+            else if (gameName === 'pacman') startPacmanGame();
         } else {
             backToMenu();
         }
-    }, 1000);
+    }, 1200);
 }
-
 // Keyboard Controls
 document.addEventListener('keydown', (e) => {
     if (!gameRunning) return;
