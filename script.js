@@ -970,7 +970,7 @@ document.addEventListener('keyup', (e) => {
     }
 });
 
-// Daily bonus
+// Daily bonusss
 const lastBonus = localStorage.getItem('arcadeLastBonus');
 const today = new Date().toDateString();
 if (lastBonus !== today) {
