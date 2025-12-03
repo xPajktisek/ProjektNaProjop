@@ -308,6 +308,8 @@ function startGame(gameName) {
         startTetrisGame();
     } else if (gameName === 'pong') {
         startPongGame();
+    } else if (gameName === 'invaders') {
+        startInvadersGame();
     } else {
         alert(`${gameName.toUpperCase()} - COMING SOON!`);
     }
@@ -489,7 +491,7 @@ function drawSnake() {
     );
 }
 
-// ===== TETRIS GAME (SZYBSZY) =====
+// ===== TETRIS GAME =====
 let tetrisBoard, tetrisPiece, tetrisScore, tetrisHighScore, tetrisDropCounter;
 const tetrisWidth = 10;
 const tetrisHeight = 20;
@@ -694,7 +696,7 @@ function tetrisGameLoop() {
     setTimeout(() => tetrisGameLoop(), 80);
 }
 
-// ===== PONG GAME (SZYBSZY, STRZALKI) =====
+// ===== PONG GAME =====
 let pongBall, pongPaddles, pongScore, botAI;
 
 function startPongGame() {
@@ -749,11 +751,9 @@ function updatePong() {
         pongBall.y = Math.max(pongBall.radius, Math.min(canvas.height - pongBall.radius, pongBall.y));
     }
 
-    // Gracz (lewy paddle)
     pongPaddles[0].y += pongPaddles[0].vy;
     pongPaddles[0].y = Math.max(0, Math.min(canvas.height - pongPaddles[0].height, pongPaddles[0].y));
 
-    // Bot AI (prawy paddle)
     botAI.reactionTime++;
     if (botAI.reactionTime > 3) {
         const paddleCenter = pongPaddles[1].y + pongPaddles[1].height / 2;
@@ -775,7 +775,6 @@ function updatePong() {
     pongPaddles[1].y += pongPaddles[1].vy;
     pongPaddles[1].y = Math.max(0, Math.min(canvas.height - pongPaddles[1].height, pongPaddles[1].y));
 
-    // Kolizje z paddlami
     pongPaddles.forEach((paddle, idx) => {
         if (pongBall.x - pongBall.radius < paddle.x + paddle.width &&
             pongBall.x + pongBall.radius > paddle.x &&
@@ -811,7 +810,6 @@ function drawPong() {
     const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color');
     const accentColor = getComputedStyle(document.body).getPropertyValue('--accent-color');
 
-    // Piłka
     ctx.fillStyle = accentColor;
     ctx.beginPath();
     ctx.arc(pongBall.x, pongBall.y, pongBall.radius, 0, Math.PI * 2);
@@ -823,7 +821,6 @@ function drawPong() {
     ctx.arc(pongBall.x, pongBall.y, pongBall.radius, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Paletki
     pongPaddles.forEach((paddle, idx) => {
         ctx.fillStyle = idx === 0 ? primaryColor : accentColor;
         ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
@@ -832,7 +829,6 @@ function drawPong() {
         ctx.strokeRect(paddle.x, paddle.y, paddle.width, paddle.height);
     });
 
-    // Linia środkowa
     ctx.strokeStyle = primaryColor;
     ctx.setLineDash([10, 10]);
     ctx.lineWidth = 2;
@@ -842,7 +838,6 @@ function drawPong() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Score
     ctx.fillStyle = primaryColor;
     ctx.font = 'bold 24px "Press Start 2P"';
     ctx.textAlign = 'center';
@@ -860,51 +855,245 @@ function pongGameLoop() {
     setTimeout(() => pongGameLoop(), 30);
 }
 
+// ===== SPACE INVADERS =====
+let invadersPlayer, invadersEnemies, invadersBullets, invadersScore, invadersHighScore, invadersWave;
+
+function startInvadersGame() {
+    currentGame = 'invaders';
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('gameContainer').style.display = 'flex';
+
+    invadersHighScore = localStorage.getItem('arcadeInvadersHighScore') || 0;
+    document.getElementById('highScore').textContent = String(invadersHighScore).padStart(5, '0');
+
+    sessionCoins = 0;
+    document.getElementById('coinsEarned').textContent = '0';
+
+    canvas.width = 800;
+    canvas.height = 600;
+
+    initInvaders();
+    gameRunning = true;
+    invadersGameLoop();
+}
+
+function initInvaders() {
+    invadersScore = 0;
+    invadersWave = 1;
+    invadersPlayer = {
+        x: canvas.width / 2 - 20,
+        y: canvas.height - 50,
+        width: 40,
+        height: 40,
+        vx: 0,
+        speed: 6
+    };
+
+    invadersBullets = [];
+    spawnInvaders();
+    document.getElementById('score').textContent = '00000';
+}
+
+function spawnInvaders() {
+    invadersEnemies = [];
+    const rows = 3;
+    const cols = 8;
+    const spacing = 80;
+
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            invadersEnemies.push({
+                x: col * spacing + 50,
+                y: row * 60 + 30,
+                width: 30,
+                height: 30,
+                vx: 2 + invadersWave * 0.5
+            });
+        }
+    }
+}
+
+function updateInvaders() {
+    invadersPlayer.x += invadersPlayer.vx;
+    invadersPlayer.x = Math.max(0, Math.min(canvas.width - invadersPlayer.width, invadersPlayer.x));
+
+    // Move enemies
+    let moveDown = false;
+    invadersEnemies.forEach(enemy => {
+        enemy.x += enemy.vx;
+        if (enemy.x <= 0 || enemy.x + enemy.width >= canvas.width) {
+            moveDown = true;
+        }
+    });
+
+    if (moveDown) {
+        invadersEnemies.forEach(enemy => {
+            enemy.vx *= -1;
+            enemy.y += 30;
+        });
+    }
+
+    // Update bullets
+    invadersBullets = invadersBullets.filter(bullet => bullet.y > 0);
+    invadersBullets.forEach(bullet => {
+        bullet.y -= 8;
+    });
+
+    // Check collisions with enemies
+    invadersBullets = invadersBullets.filter(bullet => {
+        let hit = false;
+        invadersEnemies = invadersEnemies.filter(enemy => {
+            if (bullet.x < enemy.x + enemy.width &&
+                bullet.x + 5 > enemy.x &&
+                bullet.y < enemy.y + enemy.height &&
+                bullet.y + 10 > enemy.y) {
+                hit = true;
+                invadersScore += 10;
+                const coinsAwarded = 5;
+                sessionCoins += coinsAwarded;
+                coins += coinsAwarded;
+                updateCoinDisplay();
+                document.getElementById('coinsEarned').textContent = sessionCoins;
+                document.getElementById('score').textContent = String(invadersScore).padStart(5, '0');
+                return false;
+            }
+            return true;
+        });
+        return !hit;
+    });
+
+    // Check if enemies reached bottom
+    if (invadersEnemies.some(enemy => enemy.y > canvas.height)) {
+        endGame('invaders');
+    }
+
+    // Spawn new wave
+    if (invadersEnemies.length === 0) {
+        invadersWave++;
+        spawnInvaders();
+    }
+}
+
+function drawInvaders() {
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg-secondary');
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color');
+    const accentColor = getComputedStyle(document.body).getPropertyValue('--accent-color');
+    const secondaryColor = getComputedStyle(document.body).getPropertyValue('--secondary-color');
+
+    // Draw player
+    ctx.fillStyle = primaryColor;
+    ctx.fillRect(invadersPlayer.x, invadersPlayer.y, invadersPlayer.width, invadersPlayer.height);
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(invadersPlayer.x, invadersPlayer.y, invadersPlayer.width, invadersPlayer.height);
+
+    // Draw barrel
+    ctx.fillStyle = accentColor;
+    ctx.fillRect(invadersPlayer.x + invadersPlayer.width / 2 - 2, invadersPlayer.y - 10, 4, 10);
+
+    // Draw enemies
+    invadersEnemies.forEach(enemy => {
+        ctx.fillStyle = secondaryColor;
+        ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+
+        ctx.strokeStyle = primaryColor;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(enemy.x, enemy.y, enemy.width, enemy.height);
+
+        // Enemy eyes
+        ctx.fillStyle = primaryColor;
+        ctx.fillRect(enemy.x + 5, enemy.y + 5, 4, 4);
+        ctx.fillRect(enemy.x + 21, enemy.y + 5, 4, 4);
+    });
+
+    // Draw bullets
+    ctx.fillStyle = accentColor;
+    invadersBullets.forEach(bullet => {
+        ctx.fillRect(bullet.x, bullet.y, 5, 10);
+    });
+
+    // Draw wave
+    ctx.fillStyle = primaryColor;
+    ctx.font = '14px "Press Start 2P"';
+    ctx.textAlign = 'left';
+    ctx.fillText(`WAVE: ${invadersWave}`, 20, 30);
+}
+
+function invadersGameLoop() {
+    if (!gameRunning || currentGame !== 'invaders') return;
+
+    updateInvaders();
+    drawInvaders();
+
+    setTimeout(() => invadersGameLoop(), 50);
+}
+
 function endGame(gameName) {
     gameRunning = false;
 
-    let finalScore = gameName === 'snake' ? score : (gameName === 'tetris' ? tetrisScore : pongScore[0]);
-    const storageKey = gameName === 'snake' ? 'arcadeSnakeHighScore' : (gameName === 'tetris' ? 'arcadeTetrisHighScore' : 'arcadePongHighScore');
+    let finalScore = gameName === 'snake' ? score : 
+                     (gameName === 'tetris' ? tetrisScore : 
+                     (gameName === 'pong' ? pongScore[0] : 
+                     (gameName === 'invaders' ? invadersScore : pacmanScore)));
+    
+    const storageKey = gameName === 'snake' ? 'arcadeSnakeHighScore' : 
+                       (gameName === 'tetris' ? 'arcadeTetrisHighScore' : 
+                       (gameName === 'pong' ? 'arcadePongHighScore' : 
+                       (gameName === 'invaders' ? 'arcadeInvadersHighScore' : 'arcadePacmanHighScore')));
 
     const currentHighScore = parseInt(localStorage.getItem(storageKey) || 0);
+    const isNewRecord = finalScore > currentHighScore;
 
-    if (finalScore > currentHighScore) {
+    if (isNewRecord) {
         localStorage.setItem(storageKey, finalScore);
         document.getElementById('highScore').textContent = String(finalScore).padStart(5, '0');
         document.getElementById('globalHighScore').textContent = String(finalScore).padStart(6, '0');
 
-        const bonus = 50;
+        const bonus = 100;
         coins += bonus;
         sessionCoins += bonus;
         updateCoinDisplay();
         document.getElementById('coinsEarned').textContent = sessionCoins;
     }
 
-    ctx.fillStyle = 'rgba(5, 5, 16, 0.9)';
+    ctx.fillStyle = 'rgba(5, 5, 16, 0.95)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--secondary-color');
-    ctx.font = 'bold 24px "Press Start 2P"';
+    // Efekt mrugania
+    ctx.fillStyle = isNewRecord ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 0, 136, 0.2)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = isNewRecord ? getComputedStyle(document.body).getPropertyValue('--accent-color') : getComputedStyle(document.body).getPropertyValue('--secondary-color');
+    ctx.font = 'bold 32px "Press Start 2P"';
     ctx.textAlign = 'center';
-    ctx.fillText('GAME', canvas.width/2, canvas.height/2 - 20);
-    ctx.fillText('OVER', canvas.width/2, canvas.height/2 + 20);
+    ctx.fillText('GAME', canvas.width/2, canvas.height/2 - 40);
+    ctx.fillText('OVER', canvas.width/2, canvas.height/2 - 10);
+
+    if (isNewRecord) {
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--accent-color');
+        ctx.font = '16px "Press Start 2P"';
+        ctx.fillText('★ NEW RECORD! ★', canvas.width/2, canvas.height/2 + 30);
+    }
 
     ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary-color');
     ctx.font = '14px "Press Start 2P"';
-    ctx.fillText(`SCORE: ${finalScore}`, canvas.width/2, canvas.height/2 + 60);
-    ctx.fillText(`+${sessionCoins} COINS`, canvas.width/2, canvas.height/2 + 90);
+    ctx.fillText(`SCORE: ${finalScore}`, canvas.width/2, canvas.height/2 + 70);
+    ctx.fillText(`+${sessionCoins} COINS`, canvas.width/2, canvas.height/2 + 100);
 
     setTimeout(() => {
-        if (confirm(`GAME OVER!\n\nSCORE: ${finalScore}\nCOINS EARNED: ${sessionCoins}\n\nPLAY AGAIN?`)) {
+        if (confirm(`GAME OVER!\n\nSCORE: ${finalScore}\nCOINS: +${sessionCoins}\n\n${isNewRecord ? '🏆 NEW RECORD! 🏆\n' : ''}PLAY AGAIN?`)) {
             if (gameName === 'snake') startSnakeGame();
             else if (gameName === 'tetris') startTetrisGame();
             else if (gameName === 'pong') startPongGame();
+            else if (gameName === 'invaders') startInvadersGame();
+            else if (gameName === 'pacman') startPacmanGame();
         } else {
             backToMenu();
         }
-    }, 1000);
+    }, 1200);
 }
-
 // Keyboard Controls
 document.addEventListener('keydown', (e) => {
     if (!gameRunning) return;
@@ -960,6 +1149,19 @@ document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowDown') pongPaddles[0].vy = 10;
         if (e.key === 'Escape') backToMenu();
     }
+
+    if (currentGame === 'invaders') {
+        if (e.key === 'ArrowLeft') invadersPlayer.vx = -invadersPlayer.speed;
+        if (e.key === 'ArrowRight') invadersPlayer.vx = invadersPlayer.speed;
+        if (e.key === ' ') {
+            e.preventDefault();
+            invadersBullets.push({
+                x: invadersPlayer.x + invadersPlayer.width / 2 - 2.5,
+                y: invadersPlayer.y
+            });
+        }
+        if (e.key === 'Escape') backToMenu();
+    }
 });
 
 document.addEventListener('keyup', (e) => {
@@ -968,7 +1170,395 @@ document.addEventListener('keyup', (e) => {
             pongPaddles[0].vy = 0;
         }
     }
+
+    if (currentGame === 'invaders') {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            invadersPlayer.vx = 0;
+        }
+    }
 });
+
+let pacmanPlayer, pacmanGhosts, pacmanPellets, pacmanScore, pacmanHighScore, pacmanLevel;
+const pacmanGridSize = 20;
+const pacmanGridWidth = 21;
+const pacmanGridHeight = 21;
+
+function startPacmanGame() {
+    currentGame = 'pacman';
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('gameContainer').style.display = 'flex';
+
+    pacmanHighScore = localStorage.getItem('arcadePacmanHighScore') || 0;
+    document.getElementById('highScore').textContent = String(pacmanHighScore).padStart(5, '0');
+
+    sessionCoins = 0;
+    document.getElementById('coinsEarned').textContent = '0';
+
+    canvas.width = pacmanGridWidth * pacmanGridSize;
+    canvas.height = pacmanGridHeight * pacmanGridSize;
+
+    initPacman();
+    gameRunning = true;
+    pacmanGameLoop();
+}
+
+function initPacman() {
+    pacmanScore = 0;
+    pacmanLevel = 1;
+    document.getElementById('score').textContent = '00000';
+
+    pacmanPlayer = {
+        x: 10,
+        y: 10,
+        vx: 0,
+        vy: 0,
+        nextVx: 0,
+        nextVy: 0,
+        mouthOpen: true,
+        direction: 0
+    };
+
+    pacmanGhosts = [
+        { x: 9, y: 8, vx: 0, vy: 0, color: '#ff0000', mode: 'chase' },
+        { x: 10, y: 9, vx: 0, vy: 0, color: '#ffb8ff', mode: 'chase' },
+        { x: 9, y: 9, vx: 0, vy: 0, color: '#00ffff', mode: 'chase' },
+        { x: 10, y: 8, vx: 0, vy: 0, color: '#ffb847', mode: 'chase' }
+    ];
+
+    generatePellets();
+}
+
+function generatePellets() {
+    pacmanPellets = [];
+    for (let y = 0; y < pacmanGridHeight; y++) {
+        for (let x = 0; x < pacmanGridWidth; x++) {
+            if (Math.random() > 0.15) {
+                pacmanPellets.push({ x, y, eaten: false });
+            }
+        }
+    }
+}
+
+function updatePacman() {
+    // Handle input
+    if (pacmanPlayer.nextVx !== 0 || pacmanPlayer.nextVy !== 0) {
+        const newX = pacmanPlayer.x + pacmanPlayer.nextVx;
+        const newY = pacmanPlayer.y + pacmanPlayer.nextVy;
+        
+        if (newX >= 0 && newX < pacmanGridWidth && newY >= 0 && newY < pacmanGridHeight) {
+            pacmanPlayer.vx = pacmanPlayer.nextVx;
+            pacmanPlayer.vy = pacmanPlayer.nextVy;
+            pacmanPlayer.nextVx = 0;
+            pacmanPlayer.nextVy = 0;
+        }
+    }
+
+    // Move Pac-Man
+    const newX = pacmanPlayer.x + pacmanPlayer.vx;
+    const newY = pacmanPlayer.y + pacmanPlayer.vy;
+
+    if (newX >= 0 && newX < pacmanGridWidth && newY >= 0 && newY < pacmanGridHeight) {
+        pacmanPlayer.x = newX;
+        pacmanPlayer.y = newY;
+    } else if (pacmanPlayer.vx !== 0) {
+        pacmanPlayer.x = pacmanPlayer.x + pacmanPlayer.vx < 0 ? pacmanGridWidth - 1 : 0;
+    }
+
+    // Update direction for animation
+    if (pacmanPlayer.vx === 1) pacmanPlayer.direction = 0;
+    else if (pacmanPlayer.vx === -1) pacmanPlayer.direction = 2;
+    else if (pacmanPlayer.vy === -1) pacmanPlayer.direction = 3;
+    else if (pacmanPlayer.vy === 1) pacmanPlayer.direction = 1;
+
+    // Eat pellets
+    pacmanPellets.forEach(pellet => {
+        if (pellet.x === pacmanPlayer.x && pellet.y === pacmanPlayer.y && !pellet.eaten) {
+            pellet.eaten = true;
+            pacmanScore += 10;
+            
+            const coinsAwarded = 2;
+            sessionCoins += coinsAwarded;
+            coins += coinsAwarded;
+            updateCoinDisplay();
+            document.getElementById('coinsEarned').textContent = sessionCoins;
+            document.getElementById('score').textContent = String(pacmanScore).padStart(5, '0');
+        }
+    });
+
+    // Move ghosts
+    pacmanGhosts.forEach((ghost, idx) => {
+        let moveX = 0;
+        let moveY = 0;
+
+        if (Math.random() < 0.3) {
+            const directions = [
+                { x: 1, y: 0 },
+                { x: -1, y: 0 },
+                { x: 0, y: 1 },
+                { x: 0, y: -1 }
+            ];
+
+            const dist = directions.map(d => {
+                const dx = pacmanPlayer.x + d.x - ghost.x;
+                const dy = pacmanPlayer.y + d.y - ghost.y;
+                return dx * dx + dy * dy;
+            });
+
+            const minIdx = dist.indexOf(Math.min(...dist));
+            moveX = directions[minIdx].x;
+            moveY = directions[minIdx].y;
+        } else {
+            const r = Math.random();
+            if (r < 0.25) moveX = 1;
+            else if (r < 0.5) moveX = -1;
+            else if (r < 0.75) moveY = 1;
+            else moveY = -1;
+        }
+
+        const ghostNewX = ghost.x + moveX;
+        const ghostNewY = ghost.y + moveY;
+
+        if (ghostNewX >= 0 && ghostNewX < pacmanGridWidth && ghostNewY >= 0 && ghostNewY < pacmanGridHeight) {
+            ghost.x = ghostNewX;
+            ghost.y = ghostNewY;
+        }
+    });
+
+    // Check collisions with ghosts
+    pacmanGhosts.forEach(ghost => {
+        if (ghost.x === pacmanPlayer.x && ghost.y === pacmanPlayer.y) {
+            endGame('pacman');
+        }
+    });
+
+    // Check if all pellets eaten
+    if (pacmanPellets.every(p => p.eaten)) {
+        pacmanLevel++;
+        generatePellets();
+        pacmanGhosts.forEach(ghost => {
+            ghost.x = Math.floor(Math.random() * pacmanGridWidth);
+            ghost.y = Math.floor(Math.random() * pacmanGridHeight);
+        });
+    }
+
+    // Mouth animation
+    if (Math.random() < 0.1) {
+        pacmanPlayer.mouthOpen = !pacmanPlayer.mouthOpen;
+    }
+}
+
+function drawPacman() {
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg-secondary');
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color');
+    const accentColor = getComputedStyle(document.body).getPropertyValue('--accent-color');
+    const secondaryColor = getComputedStyle(document.body).getPropertyValue('--secondary-color');
+
+    // Draw pellets
+    ctx.fillStyle = accentColor;
+    pacmanPellets.forEach(pellet => {
+        if (!pellet.eaten) {
+            ctx.fillRect(
+                pellet.x * pacmanGridSize + pacmanGridSize / 2 - 2,
+                pellet.y * pacmanGridSize + pacmanGridSize / 2 - 2,
+                4,
+                4
+            );
+        }
+    });
+
+    // Draw Pac-Man
+    const pacX = pacmanPlayer.x * pacmanGridSize + pacmanGridSize / 2;
+    const pacY = pacmanPlayer.y * pacmanGridSize + pacmanGridSize / 2;
+    const mouthAngle = pacmanPlayer.mouthOpen ? 0.3 : 0.1;
+
+    ctx.fillStyle = '#ffff00';
+    ctx.beginPath();
+    ctx.arc(pacX, pacY, pacmanGridSize / 2 - 2, mouthAngle + pacmanPlayer.direction * Math.PI / 2, 
+            2 * Math.PI - mouthAngle + pacmanPlayer.direction * Math.PI / 2);
+    ctx.lineTo(pacX, pacY);
+    ctx.fill();
+
+    // Pac-Man eye
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(
+        pacX + Math.cos(pacmanPlayer.direction * Math.PI / 2) * 3,
+        pacY + Math.sin(pacmanPlayer.direction * Math.PI / 2) * 3,
+        1.5,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    // Draw ghosts
+    pacmanGhosts.forEach(ghost => {
+        const ghostX = ghost.x * pacmanGridSize + pacmanGridSize / 2;
+        const ghostY = ghost.y * pacmanGridSize + pacmanGridSize / 2;
+        const ghostSize = pacmanGridSize / 2 - 2;
+
+        ctx.fillStyle = ghost.color;
+
+        // Ghost body
+        ctx.beginPath();
+        ctx.arc(ghostX, ghostY - 2, ghostSize, Math.PI, 0);
+        ctx.lineTo(ghostX + ghostSize, ghostY + ghostSize - 2);
+        ctx.lineTo(ghostX - ghostSize, ghostY + ghostSize - 2);
+        ctx.closePath();
+        ctx.fill();
+
+        // Ghost eyes
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(ghostX - 3, ghostY - 2, 2, 2);
+        ctx.fillRect(ghostX + 1, ghostY - 2, 2, 2);
+
+        ctx.fillStyle = '#0000ff';
+        ctx.fillRect(ghostX - 3, ghostY - 2, 1, 1);
+        ctx.fillRect(ghostX + 1, ghostY - 2, 1, 1);
+    });
+
+    // Draw level
+    ctx.fillStyle = primaryColor;
+    ctx.font = '14px "Press Start 2P"';
+    ctx.textAlign = 'left';
+    ctx.fillText(`LEVEL: ${pacmanLevel}`, 20, 30);
+
+    // Grid
+    ctx.strokeStyle = secondaryColor;
+    ctx.globalAlpha = 0.05;
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= pacmanGridWidth; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * pacmanGridSize, 0);
+        ctx.lineTo(i * pacmanGridSize, canvas.height);
+        ctx.stroke();
+    }
+    for (let i = 0; i <= pacmanGridHeight; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * pacmanGridSize);
+        ctx.lineTo(canvas.width, i * pacmanGridSize);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+}
+
+function pacmanGameLoop() {
+    if (!gameRunning || currentGame !== 'pacman') return;
+
+    updatePacman();
+    drawPacman();
+
+    setTimeout(() => pacmanGameLoop(), 100);
+}
+
+// ...existing code...
+
+function startGame(gameName) {
+    if (gameName === 'snake') {
+        startSnakeGame();
+    } else if (gameName === 'tetris') {
+        startTetrisGame();
+    } else if (gameName === 'pong') {
+        startPongGame();
+    } else if (gameName === 'invaders') {
+        startInvadersGame();
+    } else if (gameName === 'pacman') {
+        startPacmanGame();
+    } else {
+        alert(`${gameName.toUpperCase()} - COMING SOON!`);
+    }
+}
+
+// ...existing code...
+
+function endGame(gameName) {
+    gameRunning = false;
+
+    let finalScore = gameName === 'snake' ? score : 
+                     (gameName === 'tetris' ? tetrisScore : 
+                     (gameName === 'pong' ? pongScore[0] : 
+                     (gameName === 'invaders' ? invadersScore : pacmanScore)));
+    
+    const storageKey = gameName === 'snake' ? 'arcadeSnakeHighScore' : 
+                       (gameName === 'tetris' ? 'arcadeTetrisHighScore' : 
+                       (gameName === 'pong' ? 'arcadePongHighScore' : 
+                       (gameName === 'invaders' ? 'arcadeInvadersHighScore' : 'arcadePacmanHighScore')));
+
+    const currentHighScore = parseInt(localStorage.getItem(storageKey) || 0);
+
+    if (finalScore > currentHighScore) {
+        localStorage.setItem(storageKey, finalScore);
+        document.getElementById('highScore').textContent = String(finalScore).padStart(5, '0');
+        document.getElementById('globalHighScore').textContent = String(finalScore).padStart(6, '0');
+
+        const bonus = 50;
+        coins += bonus;
+        sessionCoins += bonus;
+        updateCoinDisplay();
+        document.getElementById('coinsEarned').textContent = sessionCoins;
+    }
+
+    ctx.fillStyle = 'rgba(5, 5, 16, 0.9)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--secondary-color');
+    ctx.font = 'bold 24px "Press Start 2P"';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME', canvas.width/2, canvas.height/2 - 20);
+    ctx.fillText('OVER', canvas.width/2, canvas.height/2 + 20);
+
+    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary-color');
+    ctx.font = '14px "Press Start 2P"';
+    ctx.fillText(`SCORE: ${finalScore}`, canvas.width/2, canvas.height/2 + 60);
+    ctx.fillText(`+${sessionCoins} COINS`, canvas.width/2, canvas.height/2 + 90);
+
+    setTimeout(() => {
+        if (confirm(`GAME OVER!\n\nSCORE: ${finalScore}\nCOINS EARNED: ${sessionCoins}\n\nPLAY AGAIN?`)) {
+            if (gameName === 'snake') startSnakeGame();
+            else if (gameName === 'tetris') startTetrisGame();
+            else if (gameName === 'pong') startPongGame();
+            else if (gameName === 'invaders') startInvadersGame();
+            else if (gameName === 'pacman') startPacmanGame();
+        } else {
+            backToMenu();
+        }
+    }, 1000);
+}
+
+// ...existing code...
+
+// Keyboard Controls
+document.addEventListener('keydown', (e) => {
+    if (!gameRunning) return;
+
+    // ...existing code for other games...
+
+    if (currentGame === 'pacman') {
+        switch(e.key) {
+            case 'ArrowUp':
+                pacmanPlayer.nextVy = -1;
+                pacmanPlayer.nextVx = 0;
+                break;
+            case 'ArrowDown':
+                pacmanPlayer.nextVy = 1;
+                pacmanPlayer.nextVx = 0;
+                break;
+            case 'ArrowLeft':
+                pacmanPlayer.nextVx = -1;
+                pacmanPlayer.nextVy = 0;
+                break;
+            case 'ArrowRight':
+                pacmanPlayer.nextVx = 1;
+                pacmanPlayer.nextVy = 0;
+                break;
+            case 'Escape':
+                backToMenu();
+                break;
+        }
+    }
+});
+
 
 // Daily bonus
 const lastBonus = localStorage.getItem('arcadeLastBonus');
