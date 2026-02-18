@@ -59,9 +59,8 @@ Prosto, szybko, klasycznie – tak jak w starych automatach arcade. 🕹️
 
 ---
 
-## 📋 **Historia wersji**
+## 📋 **Ostatni UPDATE**
 
 | Wersja | Data | Opis |
 |--------|------|------|
-| 0.5.0 | 2026-02-18 | Początkowa wersja – 5 gier arcade |
-| 0.6.0 | 2026-02-18 | Debugowanie – naprawiono 6 bugów (szczegóły w `DEBUGOWANIE.md`) |
+| 0.7.0 | 2026-02-18 | Debugowanie Etap 5 – naprawa krytycznego błędu TypeError w `startGame()` |
