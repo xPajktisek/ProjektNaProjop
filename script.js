@@ -95,9 +95,9 @@ function renderShop() {
                 </div>
                 <div class="theme-price">${theme.price === 0 ? 'FREE' : `🪙 ${theme.price}`}</div>
             </div>
-            ${!isOwned ? `<button class="buy-button" onclick="buyTheme('${theme.id}', ${theme.price})" ${coins < theme.price ? 'disabled' : ''}>BUY</button>` : 
-              (isActive ? '<button class="buy-button" disabled>ACTIVE</button>' : 
-               `<button class="buy-button" onclick="applyTheme('${theme.id}')">USE</button>`)}
+            ${!isOwned ? `<button class="buy-button" onclick="buyTheme('${theme.id}', ${theme.price})" ${coins < theme.price ? 'disabled' : ''}>BUY</button>` :
+                (isActive ? '<button class="buy-button" disabled>ACTIVE</button>' :
+                    `<button class="buy-button" onclick="applyTheme('${theme.id}')">USE</button>`)}
         `;
 
         grid.appendChild(themeItem);
@@ -257,7 +257,7 @@ document.addEventListener('keydown', (e) => {
         return;
     }
 
-    switch(e.key) {
+    switch (e.key) {
         case 'ArrowUp':
             e.preventDefault();
             currentIndex = (currentIndex - 1 + gameItems.length) % gameItems.length;
@@ -296,19 +296,7 @@ let currentGame = null;
 let gameRunning = false;
 let sessionCoins = 0;
 
-function startGame(gameName) {
-    if (gameName === 'snake') {
-        startSnakeGame();
-    } else if (gameName === 'tetris') {
-        startTetrisGame();
-    } else if (gameName === 'pong') {
-        startPongGame();
-    } else if (gameName === 'invaders') {
-        startInvadersGame();
-    } else {
-        alert(`${gameName.toUpperCase()} - COMING SOON!`);
-    }
-}
+// startGame() przeniesiona do końca pliku (z obsługą Pac-Mana)
 
 function backToMenu() {
     gameRunning = false;
@@ -327,6 +315,8 @@ canvas.width = gridSize * tileCount;
 canvas.height = gridSize * tileCount;
 
 function startSnakeGame() {
+    canvas.width = gridSize * tileCount;
+    canvas.height = gridSize * tileCount;
     currentGame = 'snake';
     document.getElementById('mainMenu').style.display = 'none';
     document.getElementById('gameContainer').style.display = 'flex';
@@ -344,7 +334,7 @@ function startSnakeGame() {
 }
 
 function initSnakeGame() {
-    snake = [{x: 10, y: 10}];
+    snake = [{ x: 10, y: 10 }];
     generateFood();
     dx = 0;
     dy = 0;
@@ -373,7 +363,7 @@ function snakeGameLoop() {
 function updateSnake() {
     if (dx === 0 && dy === 0) return;
 
-    const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
     if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
         endGame('snake');
@@ -468,9 +458,9 @@ function drawSnake() {
 
     ctx.beginPath();
     ctx.arc(
-        food.x * gridSize + gridSize/2,
-        food.y * gridSize + gridSize/2,
-        gridSize/3,
+        food.x * gridSize + gridSize / 2,
+        food.y * gridSize + gridSize / 2,
+        gridSize / 3,
         0,
         Math.PI * 2
     );
@@ -558,7 +548,7 @@ function canMoveTetris(x, y, shape) {
 function rotateTetrisPiece() {
     const rotated = [];
     const shape = tetrisPiece.shape;
-    
+
     for (let col = 0; col < shape[0].length; col++) {
         const newRow = [];
         for (let row = shape.length - 1; row >= 0; row--) {
@@ -594,6 +584,7 @@ function clearTetrisLines() {
             tetrisBoard.splice(row, 1);
             tetrisBoard.unshift(Array(tetrisWidth).fill(0));
             linesCleared++;
+            row++;
         }
     }
 
@@ -772,10 +763,12 @@ function updatePong() {
             pongBall.x + pongBall.radius > paddle.x &&
             pongBall.y > paddle.y &&
             pongBall.y < paddle.y + paddle.height) {
-            
+
             pongBall.vx = Math.abs(pongBall.vx) * (idx === 0 ? 1 : -1);
-            pongBall.vx *= 1.08;
-            
+            pongBall.vx *= 1.05;
+            const maxSpeed = 20;
+            pongBall.vx = Math.max(-maxSpeed, Math.min(maxSpeed, pongBall.vx));
+
             const hitPos = (pongBall.y - paddle.y) / paddle.height;
             pongBall.vy = (hitPos - 0.5) * 15;
 
@@ -1051,8 +1044,8 @@ function showGameOverModal(gameName, finalScore, sessionCoins, isNewRecord) {
         const header = document.createElement('div');
         header.style.cssText = `
             padding: 30px 20px 20px;
-            background: ${isNewRecord ? 
-                'linear-gradient(180deg, rgba(0, 255, 136, 0.15), transparent)' : 
+            background: ${isNewRecord ?
+                'linear-gradient(180deg, rgba(0, 255, 136, 0.15), transparent)' :
                 'linear-gradient(180deg, rgba(255, 0, 136, 0.15), transparent)'};
             position: relative;
         `;
@@ -1286,12 +1279,12 @@ function showGameOverModal(gameName, finalScore, sessionCoins, isNewRecord) {
             box.style.transition = 'all 300ms ease';
             box.style.transform = 'scale(0.8) rotateX(-20deg)';
             box.style.opacity = '0';
-            
+
             setTimeout(() => {
                 overlay.remove();
                 resolve(playAgain);
             }, 300);
-            
+
             document.removeEventListener('keydown', handleKeydown);
         };
 
@@ -1308,7 +1301,7 @@ function showGameOverModal(gameName, finalScore, sessionCoins, isNewRecord) {
                 closeModal(false);
             }
         };
-        
+
         setTimeout(() => {
             document.addEventListener('keydown', handleKeydown);
         }, 1000);
@@ -1416,17 +1409,17 @@ if (!document.getElementById('gameOverStyles')) {
 }
 
 function endGame(gameName) {
-    gameRunning = false;
+    gameRunning = true;
 
-    let finalScore = gameName === 'snake' ? score : 
-                     (gameName === 'tetris' ? tetrisScore : 
-                     (gameName === 'pong' ? pongScore[0] : 
-                     (gameName === 'invaders' ? invadersScore : pacmanScore)));
-    
-    const storageKey = gameName === 'snake' ? 'arcadeSnakeHighScore' : 
-                       (gameName === 'tetris' ? 'arcadeTetrisHighScore' : 
-                       (gameName === 'pong' ? 'arcadePongHighScore' : 
-                       (gameName === 'invaders' ? 'arcadeInvadersHighScore' : 'arcadePacmanHighScore')));
+    let finalScore = gameName === 'snake' ? score :
+        (gameName === 'tetris' ? tetrisScore :
+            (gameName === 'pong' ? pongScore[0] :
+                (gameName === 'invaders' ? invadersScore : pacmanScore)));
+
+    const storageKey = gameName === 'snake' ? 'arcadeSnakeHighScore' :
+        (gameName === 'tetris' ? 'arcadeTetrisHighScore' :
+            (gameName === 'pong' ? 'arcadePongHighScore' :
+                (gameName === 'invaders' ? 'arcadeInvadersHighScore' : 'arcadePacmanHighScore')));
 
     const currentHighScore = parseInt(localStorage.getItem(storageKey) || 0);
     const isNewRecord = finalScore > currentHighScore;
@@ -1449,8 +1442,8 @@ function endGame(gameName) {
 
     // Glitch effect lines
     for (let i = 0; i < 5; i++) {
-        ctx.fillStyle = isNewRecord ? 
-            `rgba(0, 255, 136, ${Math.random() * 0.1})` : 
+        ctx.fillStyle = isNewRecord ?
+            `rgba(0, 255, 136, ${Math.random() * 0.1})` :
             `rgba(255, 0, 136, ${Math.random() * 0.1})`;
         const y = Math.random() * canvas.height;
         ctx.fillRect(0, y, canvas.width, Math.random() * 20 + 5);
@@ -1477,7 +1470,7 @@ document.addEventListener('keydown', (e) => {
     if (!gameRunning) return;
 
     if (currentGame === 'snake') {
-        switch(e.key) {
+        switch (e.key) {
             case 'ArrowUp':
                 if (dy === 0) { dx = 0; dy = -1; }
                 break;
@@ -1497,7 +1490,7 @@ document.addEventListener('keydown', (e) => {
     }
 
     if (currentGame === 'tetris') {
-        switch(e.key) {
+        switch (e.key) {
             case 'ArrowLeft':
                 if (canMoveTetris(tetrisPiece.x - 1, tetrisPiece.y, tetrisPiece.shape)) {
                     tetrisPiece.x--;
@@ -1539,6 +1532,30 @@ document.addEventListener('keydown', (e) => {
             });
         }
         if (e.key === 'Escape') backToMenu();
+    }
+
+    if (currentGame === 'pacman') {
+        switch (e.key) {
+            case 'ArrowUp':
+                pacmanPlayer.nextVy = -1;
+                pacmanPlayer.nextVx = 0;
+                break;
+            case 'ArrowDown':
+                pacmanPlayer.nextVy = 1;
+                pacmanPlayer.nextVx = 0;
+                break;
+            case 'ArrowLeft':
+                pacmanPlayer.nextVx = -1;
+                pacmanPlayer.nextVy = 0;
+                break;
+            case 'ArrowRight':
+                pacmanPlayer.nextVx = 1;
+                pacmanPlayer.nextVy = 0;
+                break;
+            case 'Escape':
+                backToMenu();
+                break;
+        }
     }
 });
 
@@ -1621,7 +1638,7 @@ function updatePacman() {
     if (pacmanPlayer.nextVx !== 0 || pacmanPlayer.nextVy !== 0) {
         const newX = pacmanPlayer.x + pacmanPlayer.nextVx;
         const newY = pacmanPlayer.y + pacmanPlayer.nextVy;
-        
+
         if (newX >= 0 && newX < pacmanGridWidth && newY >= 0 && newY < pacmanGridHeight) {
             pacmanPlayer.vx = pacmanPlayer.nextVx;
             pacmanPlayer.vy = pacmanPlayer.nextVy;
@@ -1649,7 +1666,7 @@ function updatePacman() {
         if (pellet.x === pacmanPlayer.x && pellet.y === pacmanPlayer.y && !pellet.eaten) {
             pellet.eaten = true;
             pacmanScore += 10;
-            
+
             const coinsAwarded = 2;
             sessionCoins += coinsAwarded;
             coins += coinsAwarded;
@@ -1743,8 +1760,8 @@ function drawPacman() {
 
     ctx.fillStyle = '#ffff00';
     ctx.beginPath();
-    ctx.arc(pacX, pacY, pacmanGridSize / 2 - 2, mouthAngle + pacmanPlayer.direction * Math.PI / 2, 
-            2 * Math.PI - mouthAngle + pacmanPlayer.direction * Math.PI / 2);
+    ctx.arc(pacX, pacY, pacmanGridSize / 2 - 2, mouthAngle + pacmanPlayer.direction * Math.PI / 2,
+        2 * Math.PI - mouthAngle + pacmanPlayer.direction * Math.PI / 2);
     ctx.lineTo(pacX, pacY);
     ctx.fill();
 
@@ -1833,33 +1850,7 @@ function startGame(gameName) {
 
 
 
-document.addEventListener('keydown', (e) => {
-    if (!gameRunning) return;
-
-    if (currentGame === 'pacman') {
-        switch(e.key) {
-            case 'ArrowUp':
-                pacmanPlayer.nextVy = -1;
-                pacmanPlayer.nextVx = 0;
-                break;
-            case 'ArrowDown':
-                pacmanPlayer.nextVy = 1;
-                pacmanPlayer.nextVx = 0;
-                break;
-            case 'ArrowLeft':
-                pacmanPlayer.nextVx = -1;
-                pacmanPlayer.nextVy = 0;
-                break;
-            case 'ArrowRight':
-                pacmanPlayer.nextVx = 1;
-                pacmanPlayer.nextVy = 0;
-                break;
-            case 'Escape':
-                backToMenu();
-                break;
-        }
-    }
-});
+// Pac-Man keydown listener scalony z głównym listenerem powyżej
 
 
 // Daily bonus
