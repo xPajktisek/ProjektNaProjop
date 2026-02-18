@@ -1,3 +1,4 @@
+// Retro Arcade v0.7.0 | Etap 5: Debugowanie – naprawa krytycznego błędu TypeError w startGame()
 let coins = parseInt(localStorage.getItem('arcadeCoins') || '0');
 let currentTheme = localStorage.getItem('arcadeTheme') || 'cyber';
 let ownedThemes = JSON.parse(localStorage.getItem('arcadeOwnedThemes') || '["cyber"]');
