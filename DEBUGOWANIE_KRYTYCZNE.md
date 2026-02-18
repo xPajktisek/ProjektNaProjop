@@ -17,10 +17,10 @@
 
 | Narzędzie | Wersja / Opis | Zastosowanie |
 |-----------|---------------|--------------|
-| **Google Chrome DevTools** | Chrome 121+ | Główny debugger – konsola (Console), inspekcja kodu (Sources), breakpointy |
+| **Google Chrome DevTools** | Chrome | Główny debugger – konsola (Console), inspekcja kodu (Sources), breakpointy |
 | **Console (panel Konsola)** | wbudowany w Chrome | Odczyt komunikatów `TypeError`, analiza stack trace |
 | **Sources (panel Źródła)** | wbudowany w Chrome | Ustawienie breakpointów, krokowe wykonanie kodu (Step Over / Step Into) |
-| **Edytor kodu (VS Code)** | VS Code 1.96+ | Analiza statyczna kodu, wyszukiwanie w pliku, edycja i naprawa |
+| **Edytor kodu (VS Code)** | edytor kodu | Analiza statyczna kodu, wyszukiwanie w pliku, edycja i naprawa |
 
 ### 1.3 Uzasadnienie wyboru
 
