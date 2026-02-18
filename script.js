@@ -113,12 +113,10 @@ function closeShop() {
     document.getElementById('shopModal').classList.remove('active');
 }
 
-// Initialize
 updateCoinDisplay();
 applyTheme(currentTheme);
 document.getElementById('globalHighScore').textContent = String(localStorage.getItem('arcadeSnakeHighScore') || 0).padStart(6, '0');
 
-// Add coins periodically for playing
 let playTime = 0;
 setInterval(() => {
     if (document.getElementById('gameContainer').style.display === 'flex') {
@@ -130,7 +128,6 @@ setInterval(() => {
     }
 }, 1000);
 
-// Retro Background Animation
 const bgCanvas = document.getElementById('backgroundCanvas');
 const bgCtx = bgCanvas.getContext('2d');
 
@@ -226,7 +223,6 @@ function animateBackground() {
 }
 animateBackground();
 
-// Menu Navigation
 const gameItems = document.querySelectorAll('.game-item');
 let currentIndex = 0;
 
@@ -296,7 +292,6 @@ gameItems.forEach((item, index) => {
     });
 });
 
-// Game System
 let currentGame = null;
 let gameRunning = false;
 let sessionCoins = 0;
@@ -322,7 +317,6 @@ function backToMenu() {
     document.getElementById('mainMenu').style.display = 'flex';
 }
 
-// ===== SNAKE GAME =====
 let snake, food, dx, dy, score, highScore;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -491,7 +485,6 @@ function drawSnake() {
     );
 }
 
-// ===== TETRIS GAME =====
 let tetrisBoard, tetrisPiece, tetrisScore, tetrisHighScore, tetrisDropCounter;
 const tetrisWidth = 10;
 const tetrisHeight = 20;
@@ -696,7 +689,6 @@ function tetrisGameLoop() {
     setTimeout(() => tetrisGameLoop(), 80);
 }
 
-// ===== PONG GAME =====
 let pongBall, pongPaddles, pongScore, botAI;
 
 function startPongGame() {
@@ -855,7 +847,6 @@ function pongGameLoop() {
     setTimeout(() => pongGameLoop(), 30);
 }
 
-// ===== SPACE INVADERS =====
 let invadersPlayer, invadersEnemies, invadersBullets, invadersScore, invadersHighScore, invadersWave;
 
 function startInvadersGame() {
@@ -917,7 +908,6 @@ function updateInvaders() {
     invadersPlayer.x += invadersPlayer.vx;
     invadersPlayer.x = Math.max(0, Math.min(canvas.width - invadersPlayer.width, invadersPlayer.x));
 
-    // Move enemies
     let moveDown = false;
     invadersEnemies.forEach(enemy => {
         enemy.x += enemy.vx;
@@ -933,13 +923,11 @@ function updateInvaders() {
         });
     }
 
-    // Update bullets
     invadersBullets = invadersBullets.filter(bullet => bullet.y > 0);
     invadersBullets.forEach(bullet => {
         bullet.y -= 8;
     });
 
-    // Check collisions with enemies
     invadersBullets = invadersBullets.filter(bullet => {
         let hit = false;
         invadersEnemies = invadersEnemies.filter(enemy => {
@@ -962,12 +950,10 @@ function updateInvaders() {
         return !hit;
     });
 
-    // Check if enemies reached bottom
     if (invadersEnemies.some(enemy => enemy.y > canvas.height)) {
         endGame('invaders');
     }
 
-    // Spawn new wave
     if (invadersEnemies.length === 0) {
         invadersWave++;
         spawnInvaders();
@@ -982,18 +968,15 @@ function drawInvaders() {
     const accentColor = getComputedStyle(document.body).getPropertyValue('--accent-color');
     const secondaryColor = getComputedStyle(document.body).getPropertyValue('--secondary-color');
 
-    // Draw player
     ctx.fillStyle = primaryColor;
     ctx.fillRect(invadersPlayer.x, invadersPlayer.y, invadersPlayer.width, invadersPlayer.height);
     ctx.strokeStyle = accentColor;
     ctx.lineWidth = 2;
     ctx.strokeRect(invadersPlayer.x, invadersPlayer.y, invadersPlayer.width, invadersPlayer.height);
 
-    // Draw barrel
     ctx.fillStyle = accentColor;
     ctx.fillRect(invadersPlayer.x + invadersPlayer.width / 2 - 2, invadersPlayer.y - 10, 4, 10);
 
-    // Draw enemies
     invadersEnemies.forEach(enemy => {
         ctx.fillStyle = secondaryColor;
         ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
@@ -1002,19 +985,16 @@ function drawInvaders() {
         ctx.lineWidth = 1;
         ctx.strokeRect(enemy.x, enemy.y, enemy.width, enemy.height);
 
-        // Enemy eyes
         ctx.fillStyle = primaryColor;
         ctx.fillRect(enemy.x + 5, enemy.y + 5, 4, 4);
         ctx.fillRect(enemy.x + 21, enemy.y + 5, 4, 4);
     });
 
-    // Draw bullets
     ctx.fillStyle = accentColor;
     invadersBullets.forEach(bullet => {
         ctx.fillRect(bullet.x, bullet.y, 5, 10);
     });
 
-    // Draw wave
     ctx.fillStyle = primaryColor;
     ctx.font = '14px "Press Start 2P"';
     ctx.textAlign = 'left';
@@ -1028,6 +1008,411 @@ function invadersGameLoop() {
     drawInvaders();
 
     setTimeout(() => invadersGameLoop(), 50);
+}
+function showGameOverModal(gameName, finalScore, sessionCoins, isNewRecord) {
+    return new Promise((resolve) => {
+        // Overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'gameOverOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(5, 5, 16, 0);
+            z-index: 20000;
+            transition: background 400ms ease;
+        `;
+
+        // Box
+        const box = document.createElement('div');
+        box.style.cssText = `
+            width: 420px;
+            max-width: 92%;
+            padding: 0;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(20, 20, 40, 0.98), rgba(10, 10, 25, 0.99));
+            border: 3px solid var(--primary-color);
+            box-shadow: 
+                0 0 60px rgba(0, 255, 255, 0.3),
+                0 0 100px rgba(255, 0, 255, 0.2),
+                inset 0 0 60px rgba(0, 0, 0, 0.5);
+            color: var(--primary-color);
+            text-align: center;
+            font-family: "Press Start 2P", monospace;
+            transform: scale(0.5) rotateX(40deg);
+            opacity: 0;
+            animation: gameOverPopIn 600ms cubic-bezier(.15, .85, .35, 1.2) forwards;
+            overflow: hidden;
+        `;
+
+        // Header section
+        const header = document.createElement('div');
+        header.style.cssText = `
+            padding: 30px 20px 20px;
+            background: ${isNewRecord ? 
+                'linear-gradient(180deg, rgba(0, 255, 136, 0.15), transparent)' : 
+                'linear-gradient(180deg, rgba(255, 0, 136, 0.15), transparent)'};
+            position: relative;
+        `;
+
+        // Scanlines effect
+        const scanlines = document.createElement('div');
+        scanlines.style.cssText = `
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.1) 2px,
+                rgba(0, 0, 0, 0.1) 4px
+            );
+            pointer-events: none;
+        `;
+        header.appendChild(scanlines);
+
+        // Trophy/skull icon
+        const icon = document.createElement('div');
+        icon.style.cssText = `
+            font-size: 60px;
+            line-height: 1;
+            margin-bottom: 15px;
+            animation: iconPulse 1s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px ${isNewRecord ? 'var(--accent-color)' : 'var(--secondary-color)'});
+        `;
+        icon.textContent = isNewRecord ? '🏆' : '💀';
+
+        // GAME OVER text
+        const gameOverText = document.createElement('div');
+        gameOverText.style.cssText = `
+            font-size: 28px;
+            font-weight: bold;
+            color: ${isNewRecord ? 'var(--accent-color)' : 'var(--secondary-color)'};
+            text-shadow: 
+                0 0 10px currentColor,
+                0 0 20px currentColor,
+                0 0 40px currentColor;
+            letter-spacing: 4px;
+            animation: textGlitch 3s infinite;
+        `;
+        gameOverText.innerHTML = 'GAME<br>OVER';
+
+        header.appendChild(icon);
+        header.appendChild(gameOverText);
+
+        // New record banner
+        if (isNewRecord) {
+            const recordBanner = document.createElement('div');
+            recordBanner.style.cssText = `
+                margin-top: 15px;
+                padding: 8px 20px;
+                background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.3), transparent);
+                color: var(--accent-color);
+                font-size: 14px;
+                letter-spacing: 2px;
+                animation: recordPulse 1.5s ease-in-out infinite;
+            `;
+            recordBanner.textContent = '★ NEW RECORD! ★';
+            header.appendChild(recordBanner);
+        }
+
+        // Stats section
+        const stats = document.createElement('div');
+        stats.style.cssText = `
+            padding: 25px 20px;
+            background: rgba(0, 0, 0, 0.3);
+        `;
+
+        // Score display
+        const scoreDisplay = document.createElement('div');
+        scoreDisplay.style.cssText = `
+            margin-bottom: 20px;
+        `;
+
+        const scoreLabel = document.createElement('div');
+        scoreLabel.style.cssText = `
+            font-size: 12px;
+            color: var(--primary-color);
+            opacity: 0.7;
+            margin-bottom: 8px;
+        `;
+        scoreLabel.textContent = 'FINAL SCORE';
+
+        const scoreValue = document.createElement('div');
+        scoreValue.style.cssText = `
+            font-size: 32px;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px var(--primary-color);
+            animation: scoreCount 1s ease-out forwards;
+        `;
+        scoreValue.id = 'finalScoreValue';
+        scoreValue.textContent = '0';
+
+        scoreDisplay.appendChild(scoreLabel);
+        scoreDisplay.appendChild(scoreValue);
+
+        // Coins display
+        const coinsDisplay = document.createElement('div');
+        coinsDisplay.style.cssText = `
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            border-radius: 8px;
+        `;
+
+        const coinIcon = document.createElement('span');
+        coinIcon.style.cssText = `
+            font-size: 24px;
+            animation: coinSpin 1s ease-in-out infinite;
+        `;
+        coinIcon.textContent = '🪙';
+
+        const coinText = document.createElement('span');
+        coinText.style.cssText = `
+            font-size: 18px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        `;
+        coinText.textContent = `+${sessionCoins}`;
+
+        coinsDisplay.appendChild(coinIcon);
+        coinsDisplay.appendChild(coinText);
+
+        stats.appendChild(scoreDisplay);
+        stats.appendChild(coinsDisplay);
+
+        // Buttons section
+        const buttons = document.createElement('div');
+        buttons.style.cssText = `
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+        `;
+
+        // Play Again button
+        const playAgainBtn = document.createElement('button');
+        playAgainBtn.style.cssText = `
+            padding: 15px 25px;
+            border: 2px solid var(--accent-color);
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.05));
+            color: var(--accent-color);
+            font-family: "Press Start 2P", monospace;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            text-shadow: 0 0 10px var(--accent-color);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            animation: buttonReady 400ms ease-out 800ms both;
+        `;
+        playAgainBtn.textContent = '▶ PLAY AGAIN';
+        playAgainBtn.onmouseenter = () => {
+            playAgainBtn.style.transform = 'scale(1.05)';
+            playAgainBtn.style.boxShadow = '0 0 30px rgba(0, 255, 136, 0.5)';
+            playAgainBtn.style.background = 'linear-gradient(180deg, rgba(0, 255, 136, 0.4), rgba(0, 255, 136, 0.1))';
+        };
+        playAgainBtn.onmouseleave = () => {
+            playAgainBtn.style.transform = 'scale(1)';
+            playAgainBtn.style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.2)';
+            playAgainBtn.style.background = 'linear-gradient(180deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.05))';
+        };
+
+        // Menu button
+        const menuBtn = document.createElement('button');
+        menuBtn.style.cssText = `
+            padding: 15px 25px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(255, 0, 136, 0.2), rgba(255, 0, 136, 0.05));
+            color: var(--secondary-color);
+            font-family: "Press Start 2P", monospace;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            text-shadow: 0 0 10px var(--secondary-color);
+            box-shadow: 0 0 20px rgba(255, 0, 136, 0.2);
+            animation: buttonReady 400ms ease-out 900ms both;
+        `;
+        menuBtn.textContent = '◀ MENU';
+        menuBtn.onmouseenter = () => {
+            menuBtn.style.transform = 'scale(1.05)';
+            menuBtn.style.boxShadow = '0 0 30px rgba(255, 0, 136, 0.5)';
+            menuBtn.style.background = 'linear-gradient(180deg, rgba(255, 0, 136, 0.4), rgba(255, 0, 136, 0.1))';
+        };
+        menuBtn.onmouseleave = () => {
+            menuBtn.style.transform = 'scale(1)';
+            menuBtn.style.boxShadow = '0 0 20px rgba(255, 0, 136, 0.2)';
+            menuBtn.style.background = 'linear-gradient(180deg, rgba(255, 0, 136, 0.2), rgba(255, 0, 136, 0.05))';
+        };
+
+        buttons.appendChild(playAgainBtn);
+        buttons.appendChild(menuBtn);
+
+        // Assemble box
+        box.appendChild(header);
+        box.appendChild(stats);
+        box.appendChild(buttons);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        // Animate background
+        requestAnimationFrame(() => {
+            overlay.style.background = 'rgba(5, 5, 16, 0.92)';
+        });
+
+        // Animate score counting
+        let currentScore = 0;
+        const scoreStep = Math.ceil(finalScore / 30);
+        const countInterval = setInterval(() => {
+            currentScore += scoreStep;
+            if (currentScore >= finalScore) {
+                currentScore = finalScore;
+                clearInterval(countInterval);
+            }
+            scoreValue.textContent = currentScore.toString().padStart(5, '0');
+        }, 30);
+
+        // Close function
+        const closeModal = (playAgain) => {
+            overlay.style.transition = 'background 300ms ease';
+            overlay.style.background = 'rgba(5, 5, 16, 0)';
+            box.style.transition = 'all 300ms ease';
+            box.style.transform = 'scale(0.8) rotateX(-20deg)';
+            box.style.opacity = '0';
+            
+            setTimeout(() => {
+                overlay.remove();
+                resolve(playAgain);
+            }, 300);
+            
+            document.removeEventListener('keydown', handleKeydown);
+        };
+
+        // Button handlers
+        playAgainBtn.onclick = () => closeModal(true);
+        menuBtn.onclick = () => closeModal(false);
+
+        // Keyboard support
+        const handleKeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                closeModal(true);
+            } else if (e.key === 'Escape') {
+                closeModal(false);
+            }
+        };
+        
+        setTimeout(() => {
+            document.addEventListener('keydown', handleKeydown);
+        }, 1000);
+    });
+}
+
+// ==================== GAME OVER STYLES ====================
+
+if (!document.getElementById('gameOverStyles')) {
+    const styleSheet = document.createElement('style');
+    styleSheet.id = 'gameOverStyles';
+    styleSheet.textContent = `
+        @keyframes gameOverPopIn {
+            0% {
+                transform: scale(0.5) rotateX(40deg);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.05) rotateX(-5deg);
+            }
+            100% {
+                transform: scale(1) rotateX(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes iconPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes textGlitch {
+            0%, 90%, 100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            92% {
+                opacity: 0.8;
+                transform: translateX(-2px);
+            }
+            94% {
+                opacity: 0.9;
+                transform: translateX(2px);
+            }
+            96% {
+                opacity: 0.8;
+                transform: translateX(-1px);
+            }
+        }
+
+        @keyframes recordPulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes coinSpin {
+            0%, 100% {
+                transform: rotateY(0deg);
+            }
+            50% {
+                transform: rotateY(180deg);
+            }
+        }
+
+        @keyframes buttonReady {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scoreCount {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        #gameOverOverlay * {
+            box-sizing: border-box;
+        }
+    `;
+    document.head.appendChild(styleSheet);
 }
 
 function endGame(gameName) {
@@ -1058,43 +1443,36 @@ function endGame(gameName) {
         document.getElementById('coinsEarned').textContent = sessionCoins;
     }
 
-    ctx.fillStyle = 'rgba(5, 5, 16, 0.95)';
+    // Draw game over on canvas
+    ctx.fillStyle = 'rgba(5, 5, 16, 0.85)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Efekt mrugania
-    ctx.fillStyle = isNewRecord ? 'rgba(0, 255, 136, 0.2)' : 'rgba(255, 0, 136, 0.2)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = isNewRecord ? getComputedStyle(document.body).getPropertyValue('--accent-color') : getComputedStyle(document.body).getPropertyValue('--secondary-color');
-    ctx.font = 'bold 32px "Press Start 2P"';
-    ctx.textAlign = 'center';
-    ctx.fillText('GAME', canvas.width/2, canvas.height/2 - 40);
-    ctx.fillText('OVER', canvas.width/2, canvas.height/2 - 10);
-
-    if (isNewRecord) {
-        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--accent-color');
-        ctx.font = '16px "Press Start 2P"';
-        ctx.fillText('★ NEW RECORD! ★', canvas.width/2, canvas.height/2 + 30);
+    // Glitch effect lines
+    for (let i = 0; i < 5; i++) {
+        ctx.fillStyle = isNewRecord ? 
+            `rgba(0, 255, 136, ${Math.random() * 0.1})` : 
+            `rgba(255, 0, 136, ${Math.random() * 0.1})`;
+        const y = Math.random() * canvas.height;
+        ctx.fillRect(0, y, canvas.width, Math.random() * 20 + 5);
     }
 
-    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary-color');
-    ctx.font = '14px "Press Start 2P"';
-    ctx.fillText(`SCORE: ${finalScore}`, canvas.width/2, canvas.height/2 + 70);
-    ctx.fillText(`+${sessionCoins} COINS`, canvas.width/2, canvas.height/2 + 100);
-
+    // Show the beautiful modal after short delay
     setTimeout(() => {
-        if (confirm(`GAME OVER!\n\nSCORE: ${finalScore}\nCOINS: +${sessionCoins}\n\n${isNewRecord ? '🏆 NEW RECORD! 🏆\n' : ''}PLAY AGAIN?`)) {
-            if (gameName === 'snake') startSnakeGame();
-            else if (gameName === 'tetris') startTetrisGame();
-            else if (gameName === 'pong') startPongGame();
-            else if (gameName === 'invaders') startInvadersGame();
-            else if (gameName === 'pacman') startPacmanGame();
-        } else {
-            backToMenu();
-        }
-    }, 1200);
+        showGameOverModal(gameName, finalScore, sessionCoins, isNewRecord)
+            .then((playAgain) => {
+                if (playAgain) {
+                    if (gameName === 'snake') startSnakeGame();
+                    else if (gameName === 'tetris') startTetrisGame();
+                    else if (gameName === 'pong') startPongGame();
+                    else if (gameName === 'invaders') startInvadersGame();
+                    else if (gameName === 'pacman') startPacmanGame();
+                } else {
+                    backToMenu();
+                }
+            });
+    }, 500);
 }
-// Keyboard Controls
+
 document.addEventListener('keydown', (e) => {
     if (!gameRunning) return;
 
@@ -1240,7 +1618,6 @@ function generatePellets() {
 }
 
 function updatePacman() {
-    // Handle input
     if (pacmanPlayer.nextVx !== 0 || pacmanPlayer.nextVy !== 0) {
         const newX = pacmanPlayer.x + pacmanPlayer.nextVx;
         const newY = pacmanPlayer.y + pacmanPlayer.nextVy;
@@ -1253,7 +1630,6 @@ function updatePacman() {
         }
     }
 
-    // Move Pac-Man
     const newX = pacmanPlayer.x + pacmanPlayer.vx;
     const newY = pacmanPlayer.y + pacmanPlayer.vy;
 
@@ -1264,13 +1640,11 @@ function updatePacman() {
         pacmanPlayer.x = pacmanPlayer.x + pacmanPlayer.vx < 0 ? pacmanGridWidth - 1 : 0;
     }
 
-    // Update direction for animation
     if (pacmanPlayer.vx === 1) pacmanPlayer.direction = 0;
     else if (pacmanPlayer.vx === -1) pacmanPlayer.direction = 2;
     else if (pacmanPlayer.vy === -1) pacmanPlayer.direction = 3;
     else if (pacmanPlayer.vy === 1) pacmanPlayer.direction = 1;
 
-    // Eat pellets
     pacmanPellets.forEach(pellet => {
         if (pellet.x === pacmanPlayer.x && pellet.y === pacmanPlayer.y && !pellet.eaten) {
             pellet.eaten = true;
@@ -1285,7 +1659,6 @@ function updatePacman() {
         }
     });
 
-    // Move ghosts
     pacmanGhosts.forEach((ghost, idx) => {
         let moveX = 0;
         let moveY = 0;
@@ -1324,14 +1697,12 @@ function updatePacman() {
         }
     });
 
-    // Check collisions with ghosts
     pacmanGhosts.forEach(ghost => {
         if (ghost.x === pacmanPlayer.x && ghost.y === pacmanPlayer.y) {
             endGame('pacman');
         }
     });
 
-    // Check if all pellets eaten
     if (pacmanPellets.every(p => p.eaten)) {
         pacmanLevel++;
         generatePellets();
@@ -1341,7 +1712,6 @@ function updatePacman() {
         });
     }
 
-    // Mouth animation
     if (Math.random() < 0.1) {
         pacmanPlayer.mouthOpen = !pacmanPlayer.mouthOpen;
     }
@@ -1355,7 +1725,6 @@ function drawPacman() {
     const accentColor = getComputedStyle(document.body).getPropertyValue('--accent-color');
     const secondaryColor = getComputedStyle(document.body).getPropertyValue('--secondary-color');
 
-    // Draw pellets
     ctx.fillStyle = accentColor;
     pacmanPellets.forEach(pellet => {
         if (!pellet.eaten) {
@@ -1368,7 +1737,6 @@ function drawPacman() {
         }
     });
 
-    // Draw Pac-Man
     const pacX = pacmanPlayer.x * pacmanGridSize + pacmanGridSize / 2;
     const pacY = pacmanPlayer.y * pacmanGridSize + pacmanGridSize / 2;
     const mouthAngle = pacmanPlayer.mouthOpen ? 0.3 : 0.1;
@@ -1380,7 +1748,6 @@ function drawPacman() {
     ctx.lineTo(pacX, pacY);
     ctx.fill();
 
-    // Pac-Man eye
     ctx.fillStyle = '#000';
     ctx.beginPath();
     ctx.arc(
@@ -1392,7 +1759,6 @@ function drawPacman() {
     );
     ctx.fill();
 
-    // Draw ghosts
     pacmanGhosts.forEach(ghost => {
         const ghostX = ghost.x * pacmanGridSize + pacmanGridSize / 2;
         const ghostY = ghost.y * pacmanGridSize + pacmanGridSize / 2;
@@ -1400,7 +1766,6 @@ function drawPacman() {
 
         ctx.fillStyle = ghost.color;
 
-        // Ghost body
         ctx.beginPath();
         ctx.arc(ghostX, ghostY - 2, ghostSize, Math.PI, 0);
         ctx.lineTo(ghostX + ghostSize, ghostY + ghostSize - 2);
@@ -1408,7 +1773,6 @@ function drawPacman() {
         ctx.closePath();
         ctx.fill();
 
-        // Ghost eyes
         ctx.fillStyle = '#fff';
         ctx.fillRect(ghostX - 3, ghostY - 2, 2, 2);
         ctx.fillRect(ghostX + 1, ghostY - 2, 2, 2);
@@ -1418,13 +1782,11 @@ function drawPacman() {
         ctx.fillRect(ghostX + 1, ghostY - 2, 1, 1);
     });
 
-    // Draw level
     ctx.fillStyle = primaryColor;
     ctx.font = '14px "Press Start 2P"';
     ctx.textAlign = 'left';
     ctx.fillText(`LEVEL: ${pacmanLevel}`, 20, 30);
 
-    // Grid
     ctx.strokeStyle = secondaryColor;
     ctx.globalAlpha = 0.05;
     ctx.lineWidth = 1;
@@ -1452,7 +1814,6 @@ function pacmanGameLoop() {
     setTimeout(() => pacmanGameLoop(), 100);
 }
 
-// ...existing code...
 
 function startGame(gameName) {
     if (gameName === 'snake') {
@@ -1470,69 +1831,10 @@ function startGame(gameName) {
     }
 }
 
-// ...existing code...
 
-function endGame(gameName) {
-    gameRunning = false;
 
-    let finalScore = gameName === 'snake' ? score : 
-                     (gameName === 'tetris' ? tetrisScore : 
-                     (gameName === 'pong' ? pongScore[0] : 
-                     (gameName === 'invaders' ? invadersScore : pacmanScore)));
-    
-    const storageKey = gameName === 'snake' ? 'arcadeSnakeHighScore' : 
-                       (gameName === 'tetris' ? 'arcadeTetrisHighScore' : 
-                       (gameName === 'pong' ? 'arcadePongHighScore' : 
-                       (gameName === 'invaders' ? 'arcadeInvadersHighScore' : 'arcadePacmanHighScore')));
-
-    const currentHighScore = parseInt(localStorage.getItem(storageKey) || 0);
-
-    if (finalScore > currentHighScore) {
-        localStorage.setItem(storageKey, finalScore);
-        document.getElementById('highScore').textContent = String(finalScore).padStart(5, '0');
-        document.getElementById('globalHighScore').textContent = String(finalScore).padStart(6, '0');
-
-        const bonus = 50;
-        coins += bonus;
-        sessionCoins += bonus;
-        updateCoinDisplay();
-        document.getElementById('coinsEarned').textContent = sessionCoins;
-    }
-
-    ctx.fillStyle = 'rgba(5, 5, 16, 0.9)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--secondary-color');
-    ctx.font = 'bold 24px "Press Start 2P"';
-    ctx.textAlign = 'center';
-    ctx.fillText('GAME', canvas.width/2, canvas.height/2 - 20);
-    ctx.fillText('OVER', canvas.width/2, canvas.height/2 + 20);
-
-    ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary-color');
-    ctx.font = '14px "Press Start 2P"';
-    ctx.fillText(`SCORE: ${finalScore}`, canvas.width/2, canvas.height/2 + 60);
-    ctx.fillText(`+${sessionCoins} COINS`, canvas.width/2, canvas.height/2 + 90);
-
-    setTimeout(() => {
-        if (confirm(`GAME OVER!\n\nSCORE: ${finalScore}\nCOINS EARNED: ${sessionCoins}\n\nPLAY AGAIN?`)) {
-            if (gameName === 'snake') startSnakeGame();
-            else if (gameName === 'tetris') startTetrisGame();
-            else if (gameName === 'pong') startPongGame();
-            else if (gameName === 'invaders') startInvadersGame();
-            else if (gameName === 'pacman') startPacmanGame();
-        } else {
-            backToMenu();
-        }
-    }, 1000);
-}
-
-// ...existing code...
-
-// Keyboard Controls
 document.addEventListener('keydown', (e) => {
     if (!gameRunning) return;
-
-    // ...existing code for other games...
 
     if (currentGame === 'pacman') {
         switch(e.key) {
@@ -1564,8 +1866,86 @@ document.addEventListener('keydown', (e) => {
 const lastBonus = localStorage.getItem('arcadeLastBonus');
 const today = new Date().toDateString();
 if (lastBonus !== today) {
-    coins += 100;
+    const bonus = 5000;
+    coins += bonus;
     updateCoinDisplay();
     localStorage.setItem('arcadeLastBonus', today);
-    alert('DAILY BONUS!\n+100 COINS!');
+    showDailyBonus(bonus);
+}
+
+function showDailyBonus(amount) {
+    const overlay = document.createElement('div');
+    overlay.id = 'dailyBonusOverlay';
+    overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* mniej przezroczyste tło */
+        background: rgba(5,5,10,0.88);
+        z-index: 20000;
+        animation: dailyFadeIn 240ms ease-out;
+    `;
+
+    const box = document.createElement('div');
+    box.style.cssText = `
+        width: 340px;
+        max-width: 92%;
+        padding: 18px;
+        border-radius: 12px;
+        /* mniej przezroczyste tło pudełka */
+        background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        color: var(--primary-color);
+        text-align: center;
+        font-family: "Press Start 2P", monospace;
+        transform: scale(0.94);
+        animation: popIn 360ms cubic-bezier(.2,.9,.3,1) forwards;
+        backdrop-filter: blur(6px);
+    `;
+    box.innerHTML = `
+        <div style="font-size:54px; line-height:1">🪙</div>
+        <div style="margin-top:8px; font-size:13px; color:var(--accent-color)">DAILY BONUS</div>
+        <div style="margin:12px 0; font-size:20px; color:var(--primary-color)">+${amount} COINS</div>
+        <div style="font-size:11px; color:var(--secondary-color)">Dziękujemy za grę — wróć jutro po kolejny bonus!</div>
+        <button id="dailyBonusClose" style="
+            margin-top:14px;
+            padding:8px 14px;
+            border-radius:8px;
+            border:none;
+            background:var(--primary-color);
+            color:#000;
+            cursor:pointer;
+            font-weight:700;
+        ">OK</button>
+    `;
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    const close = () => {
+        overlay.style.transition = 'opacity 220ms ease, transform 220ms ease';
+        overlay.style.opacity = '0';
+        box.style.transform = 'scale(0.96)';
+        setTimeout(() => overlay.remove(), 260);
+        document.removeEventListener('keydown', onKey);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+
+    document.getElementById('dailyBonusClose').onclick = close;
+    document.addEventListener('keydown', onKey);
+
+    // Auto-dismiss after 3.5s
+    setTimeout(close, 3500);
+}
+
+// Wstrzyknięcie prostych keyframe'ów (jeśli jeszcze nie dodane)
+if (!document.getElementById('dailyBonusStyles')) {
+    const s = document.createElement('style');
+    s.id = 'dailyBonusStyles';
+    s.textContent = `
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+        @keyframes dailyFadeIn { from { opacity: 0 } to { opacity: 1 } }
+    `;
+    document.head.appendChild(s);
 }
