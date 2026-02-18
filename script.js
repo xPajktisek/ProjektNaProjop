@@ -1409,7 +1409,7 @@ if (!document.getElementById('gameOverStyles')) {
 }
 
 function endGame(gameName) {
-    gameRunning = true;
+    gameRunning = false;
 
     let finalScore = gameName === 'snake' ? score :
         (gameName === 'tetris' ? tetrisScore :
