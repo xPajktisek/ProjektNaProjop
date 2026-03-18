@@ -51,6 +51,21 @@ Zjadaj power pellety, by duchy zmieniły się w ofiary!
 
 Prosto, szybko, klasycznie – tak jak w starych automatach arcade. 🕹️
 
+
+| Kontekst | Klawisz | Akcja |
+|----------|---------|-------|
+| Menu | ↑ / ↓ | Nawigacja po liście gier |
+| Menu | Enter | Uruchomienie wybranej gry |
+| Snake | ← → ↑ ↓ | Zmiana kierunku węża |
+| Tetris | ← → | Przesuw klocka | 
+| Tetris | ↓ | Przyspieszenie spadania |
+| Tetris | Spacja | Obrót klocka |
+| Pong | ↑ / ↓ | Ruch paletką |
+| Space Invaders | ← → | Ruch statkiem |
+| Space Invaders | Spacja / ↑ | Strzał laserem |
+| Pac-Man | ← → ↑ ↓ | Kierunek ruchu |
+| Wszystkie | Escape | Powrót do menu |
+
 ---
 
 ## 🌐 **Technologie**
